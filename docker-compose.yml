@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:15
+    container_name: hotstar_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: hotstar_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - hotstar_network
+
+  server:
+    build: ./
+    container_name: hotstar_server
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: 8000
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - hotstar_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: hotstar_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - hotstar_network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  hotstar_network:
+    driver: bridge
